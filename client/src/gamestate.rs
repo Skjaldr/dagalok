@@ -13,7 +13,7 @@ pub enum GameState {
     #[default]
     LoadingAssets,
     LoadingCamera,
-    LoadingLighting,
+    LoadingLights,
     LoadingTerrain,
     LoadingCharacterMesh,
     LoadingCharacterAnimations,
