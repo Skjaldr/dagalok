@@ -1,11 +1,11 @@
 use bevy::prelude::*;
 use bevy_third_person_camera::ThirdPersonCamera;
-
 use crate::{characters::setup_char::{Position, Speed, IsMoving}, player::setup_player::Player};
 
 // Player controls the movement of the player character.  In this case, the player press W, A, S, or D, and the character moves in the corresponding direction
 // The camera also needs to move with the character.  What is needed? Well obviously we need player input so to take in player input via Keyboard.  A direction,
 // transform, and position is needed, as well as speed.  All of these are needed with a reference to time.
+//
 pub fn character_movement(
     // mut commands: Commands,
     input: Res<ButtonInput<KeyCode>>,
@@ -14,10 +14,11 @@ pub fn character_movement(
     time: Res<Time>,
 
 ) {
-
+    // grab our entity with the following Transform, Speed, Position, and isMoving, filtering the player component.
     let Ok((mut transform, speed, mut position, mut moving)) = character_query.single_mut() else {
         return;
     };
+    // grab the transform of the camera, filtering out the player so as to not create union issues.
     let Ok(cam) = camera_query.single() else {
         return;
     };
