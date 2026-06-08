@@ -1,6 +1,6 @@
 use bevy::{platform::collections::HashMap, prelude::*};
 
-use crate::{asset_loader::DkGameAssets, characters::setup_char::Animated, gamestate::GameState};
+use crate::{asset_loader::DkGameAssets, characters::setup_char::{Animated, IsMoving}, gamestate::GameState};
 
 // For animations there are a few things that are needed in order to get and use the animations.  First, a struct that holds: a handle to an animation graph
 // and a HashMap with the Name of the animation, and the index(AnimatnionNodeIndex) to store the index information.  This struct will also need to be added to the
@@ -89,10 +89,10 @@ pub fn link_animations(
 
 // just play the animations to ensure we're working.  Will change the animation playing in another iteration.
 pub fn play_animations(
-    entity_link: Query<(&AnimationEntityLink, &AnimationList)>,
+    entity_link: Query<(&AnimationEntityLink, &AnimationList, &IsMoving)>,
     mut animation_player: Query<&mut AnimationPlayer>,
 ) {
-    for (link, anim) in entity_link.iter() {
+    for (link, anim, moving) in entity_link.iter() {
         let Some(idle) = anim.index_map.get(&AnimationName::Idle) else {
             continue;
         };
@@ -100,9 +100,22 @@ pub fn play_animations(
             continue;
         };
         if let Ok(mut player) = animation_player.get_mut(link.0) {
-            if !player.is_playing_animation(*idle) {
-                player.play(*idle).repeat();
+            if !moving.0 {
+
+                if !player.is_playing_animation(*idle) {
+                    player.stop(*run);
+                    player.play(*idle).repeat();
+                }
+
+            } else if moving.0 {
+
+                if !player.is_playing_animation(*run) {
+                    player.stop(*idle);
+                    player.play(*run).repeat();
+                    player.adjust_speeds(1.0);
+                }
             }
+
         }
     }
 }

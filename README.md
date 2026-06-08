@@ -1,8 +1,10 @@
 # DAGNALOK - Multiplayer MMO with focus on PVP
 
-**1. Setup Core - i.e., camera, lights, asset loading, terrain, character**
+~~**1. Setup Core - i.e., camera, lights, asset loading, terrain, character**~~
 
-**2. Setup animations - Character and Animations will be set up closely to one another to allow for better modularity and providing different character meshes with correct animations**
+~~**2. Setup animations - Character and Animations will be set up closely to one another to allow for better modularity and providing different character meshes with correct animations**~~
+
+**2.5. Set up Player - Setup the player so that we have a controller for our character.  We must also have a player in order for a UI to exist.**
 
 **3. Movement system - Once terrain, characters, and animations are setup, create a movement system for the player to control the character, incporporating animations for fluidity**
 

@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{math::VectorSpace, prelude::*};
 
 #[derive(Component)]
 pub struct Animated;
@@ -10,9 +10,10 @@ pub struct Health {
 }
 
 #[derive(Component)]
-pub struct Position {
-    pos: Vec3,
-}
+pub struct Position(pub Vec3);
+
+#[derive(Component)]
+pub struct IsMoving(pub bool);
 
 #[derive(Component)]
 pub struct Speed(pub f32);
@@ -23,16 +24,19 @@ pub struct CharacterBundle {
     health: Health,
     position: Position,
     speed: Speed,
+    moving: IsMoving,
+
 }
 
 // All magic numbers are for testing only.  Will move to controlled variables.
 impl CharacterBundle {
-    pub fn new(pos: Vec3, health: Health, speed: Speed) -> Self {
+    pub fn new(pos: Vec3, health: Health, speed: Speed, moving: bool) -> Self {
         Self {
             animated: Animated,
             health: health,
-            position: Position { pos: pos },
+            position: Position(pos),
             speed: speed,
+            moving: IsMoving(moving),
         }
     }
 }

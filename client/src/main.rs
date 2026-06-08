@@ -1,13 +1,14 @@
 use bevy::prelude::*;
 use bevy_third_person_camera::ThirdPersonCameraPlugin;
 
-use crate::{asset_loader::AssetLoadingPlugin, characters::CharacterPlugin, gamestate::GameStatePlugin, setup::SetupPlugin, terrain::TerrainPlugin};
+use crate::{asset_loader::AssetLoadingPlugin, characters::CharacterPlugin, gamestate::GameStatePlugin, player::PlayerPlugin, setup::SetupPlugin, terrain::TerrainPlugin};
 
 mod setup;
 mod gamestate;
 mod asset_loader;
 mod characters;
 mod terrain;
+mod player;
 
 fn main() {
     let mut app = App::new();
@@ -20,6 +21,7 @@ fn main() {
             SetupPlugin,
             TerrainPlugin,
             CharacterPlugin,
+            PlayerPlugin,
         ))
         .run();
 }
