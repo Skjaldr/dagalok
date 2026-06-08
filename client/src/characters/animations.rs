@@ -12,9 +12,9 @@ use crate::{asset_loader::DkGameAssets, characters::setup_char::{Animated, IsMov
 pub enum AnimationName {
     Idle,
     Run,
-    SwordShieldStance,
-    SwordShieldAttack,
-    Death,
+    _SwordShieldStance,
+    _SwordShieldAttack,
+    _Death,
 }
 
 #[derive(Component)]
