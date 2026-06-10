@@ -4,12 +4,11 @@
 
 ~~**2. Setup animations - Character and Animations will be set up closely to one another to allow for better modularity and providing different character meshes with correct animations**~~
 
-**2.5. Set up Player - Setup the player so that we have a controller for our character.  We must also have a player in order for a UI to exist.**
+~~**2.5. Set up Player - Setup the player so that we have a controller for our character.  We must also have a player in order for a UI to exist.**~~
 
-**3. Movement system - Once terrain, characters, and animations are setup, create a movement system for the player to control the character, incporporating animations for fluidity**
+~~**3. Movement system - Once terrain, characters, and animations are setup, create a movement system for the player to control the character, incporporating animations for fluidity**~~
 
 **4. Basic UI - Work to create a basic UI that will keep track of player's name, stats, etc**
-
 
 **5. SpacetimeDB Integration - Setup server and connect client to server.**
 

@@ -28,7 +28,7 @@ pub struct CharacterBundle {
 
 }
 
-// All magic numbers are for testing only.  Will move to controlled variables.
+// All magic numbers are for testing only.  Will eventually move to controlled variables.
 impl CharacterBundle {
     pub fn new(pos: Vec3, health: Health, speed: Speed, moving: bool) -> Self {
         Self {

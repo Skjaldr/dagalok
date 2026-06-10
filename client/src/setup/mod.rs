@@ -11,5 +11,7 @@ impl Plugin for SetupPlugin {
         app
             .add_systems(OnEnter(GameState::LoadingCamera), setup_camera)
             .add_systems(OnEnter(GameState::LoadingLights), setup_lights);
+            // .add_systems(Update, handle_hotbar_clicks);
+
     }
 }
