@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use avian3d::prelude::*;
 use bevy_third_person_camera::ThirdPersonCameraPlugin;
 
-use crate::{asset_loader::AssetLoadingPlugin, characters::CharacterPlugin, gamestate::GameStatePlugin, player::PlayerPlugin, setup::SetupPlugin, terrain::TerrainPlugin};
+use crate::{characters::CharacterPlugin, gamestate::GameStatePlugin, player::PlayerPlugin, setup::SetupPlugin, terrain::TerrainPlugin};
 
 mod setup;
 mod gamestate;
@@ -19,7 +19,7 @@ fn main() {
             PhysicsPlugins::default(),
             ThirdPersonCameraPlugin,
             GameStatePlugin,
-            AssetLoadingPlugin,
+            // AssetLoadingPlugin,
             SetupPlugin,
             TerrainPlugin,
             CharacterPlugin,

@@ -1,6 +1,6 @@
 use bevy::{platform::collections::HashMap, prelude::*};
 
-use crate::{asset_loader::DkGameAssets, characters::setup_char::{Animated, IsMoving}, gamestate::GameState};
+use crate::{characters::setup_char::{Animated, IsMoving}, gamestate::GameState};
 
 // For animations there are a few things that are needed in order to get and use the animations.  First, a struct that holds: a handle to an animation graph
 // and a HashMap with the Name of the animation, and the index(AnimatnionNodeIndex) to store the index information.  This struct will also need to be added to the
@@ -33,7 +33,7 @@ pub struct AnimationEntityLink(pub Entity);
 pub fn get_animations(
     mut commands: Commands,
     target_query: Query<Entity, With<Animated>>,
-    game_assets: Res<DkGameAssets>,
+    asset_server: Res<AssetServer>,
     gltf_handle: Res<Assets<Gltf>>,
     mut graphs: ResMut<Assets<AnimationGraph>>,
     mut next_state: ResMut<NextState<GameState>>,
@@ -42,13 +42,12 @@ pub fn get_animations(
     let Ok(target_entity) = target_query.single() else {
         return;
     };
-    let Some(skeleton) = gltf_handle.get(&game_assets.skeleton) else {
-        return;
-    };
 
+    let skeleton_handle = GltfAssetLabel::Animation(0).from_asset("source.glb");
+    let skeleton = asset_server.load(skeleton_handle);
     let mut graph = AnimationGraph::new();
-    let idle_index = graph.add_clip(skeleton.named_animations["Idle"].clone(), 1.0, graph.root);
-    let run_index = graph.add_clip(skeleton.named_animations["Run_Standard"].clone(), 1.0, graph.root);
+    let idle_index = graph.add_clip(skeleton.clone(), 1.0, graph.root);
+    let run_index = graph.add_clip(skeleton.clone(), 1.0, graph.root);
     let graph_handle = graphs.add(graph);
 
     let mut index_map: HashMap<AnimationName, AnimationNodeIndex> = HashMap::new();

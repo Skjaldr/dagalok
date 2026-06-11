@@ -11,7 +11,6 @@ impl Plugin for GameStatePlugin {
 #[derive(States, Copy, Hash, Eq, PartialEq, Debug, Clone, Default)]
 pub enum GameState {
     #[default]
-    LoadingAssets,
     LoadingCamera,
     LoadingLights,
     LoadingTerrain,
