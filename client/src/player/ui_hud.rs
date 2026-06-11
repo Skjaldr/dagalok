@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{characters::setup_char::Health, player::setup_player::Player};
+use crate::{characters::setup_char::Health, player::setup_player::{Player, PlayerName}};
 
 #[derive(Component)]
 pub struct HealthBarDisplayMarker;
@@ -43,6 +43,34 @@ pub fn spawn_health_bar(
      ));
 }
 
+pub fn local_player_name_bar(
+    mut commands: Commands,
+    name_query: Query<&PlayerName, With<Player>>,
+) {
+    let Ok(name) = name_query.single() else {
+        return;
+    };
+
+    commands.spawn((
+        Node {
+            position_type: PositionType::Absolute,
+            width: Val::Percent(5.0),
+            height: Val::Percent(5.0),
+            justify_content: JustifyContent::Center,
+            ..default()
+        },
+        Text::new(name.0.to_string()),
+        TextLayout::new_with_justify(Justify::Center),
+        BackgroundColor(Color::BLACK),
+    ));
+}
+
+pub fn get_targeted_player(
+    mut commands: Commands,
+
+) {
+
+}
 
 
 pub fn update_health_bar(

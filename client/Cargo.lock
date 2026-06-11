@@ -182,6 +182,7 @@ checksum = "4b46cbb362ab8752921c97e041f5e366ee6297bd428a31275b9fcf1e380f7299"
 name = "anim-test"
 version = "0.1.0"
 dependencies = [
+ "avian3d",
  "bevy",
  "bevy_asset_loader",
  "bevy_third_person_camera",

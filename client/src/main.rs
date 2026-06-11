@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use avian3d::prelude::*;
 use bevy_third_person_camera::ThirdPersonCameraPlugin;
 
 use crate::{asset_loader::AssetLoadingPlugin, characters::CharacterPlugin, gamestate::GameStatePlugin, player::PlayerPlugin, setup::SetupPlugin, terrain::TerrainPlugin};
@@ -15,6 +16,7 @@ fn main() {
     app
         .add_plugins((
             DefaultPlugins,
+            PhysicsPlugins::default(),
             ThirdPersonCameraPlugin,
             GameStatePlugin,
             AssetLoadingPlugin,
@@ -22,6 +24,7 @@ fn main() {
             TerrainPlugin,
             CharacterPlugin,
             PlayerPlugin,
+            MeshPickingPlugin,
         ))
         .run();
 }

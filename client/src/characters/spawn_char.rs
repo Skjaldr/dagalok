@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_third_person_camera::ThirdPersonCameraTarget;
 
-use crate::{asset_loader::DkGameAssets, characters::setup_char::{CharacterBundle, Health, Speed}, gamestate::GameState};
+use crate::{asset_loader::DkGameAssets, characters::setup_char::{CharacterBundle, Health, Speed}, gamestate::GameState, player::setup_player::PlayerName};
 use crate::player::setup_player::Player;
 
 
@@ -20,7 +20,13 @@ pub fn spawn_player_character(
 
             // Adding a Player Component marker until defining difference between NPCs and player Characaters
             Player,
-        ));
+            PlayerName("Joe".to_string()),
+            Pickable::default(),
+        )).observe(|mut event: On<Pointer<Click>>| {
+            println!("Pointer {:?} was just clicked!", event.pointer_id);
+            event.propagate(false);
+        });
+
     }
     next_state.set(GameState::LoadingCharacterAnimations);
 }
