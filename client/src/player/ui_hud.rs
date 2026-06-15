@@ -81,8 +81,8 @@ pub fn update_health_bar(
     let Ok(hp) = health.single() else {
         return;
     };
-    println!("Max Health is: {:?}", hp.max);
-    println!("Current health is: {:?}", hp.current);
+    // println!("Max Health is: {:?}", hp.max);
+    // println!("Current health is: {:?}", hp.current);
 
     for (mut text, mut bar, _config) in &mut bars {
         let hp_percent = hp.current/hp.max;
