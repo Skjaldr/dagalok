@@ -1,6 +1,6 @@
 use bevy::{platform::collections::HashMap, prelude::*, scene::SceneInstanceReady};
 
-use crate::{characters::setup_char::{Animated, IsMoving}, gamestate::GameState, player::{self, setup_player::Player}};
+use crate::{characters::setup_char::{Animated, IsMoving}, gamestate::GameState};
 
 // For animations there are a few things that are needed in order to get and use the animations.  First, a struct that holds: a handle to an animation graph
 // and a HashMap with the Name of the animation, and the index(AnimatnionNodeIndex) to store the index information.  This struct will also need to be added to the

@@ -1,4 +1,4 @@
-use bevy::{math::VectorSpace, prelude::*};
+use bevy::prelude::*;
 
 #[derive(Component)]
 pub struct Animated;
@@ -7,6 +7,12 @@ pub struct Animated;
 pub struct Health {
     pub current: f32,
     pub max: f32
+}
+
+#[derive(Component, Debug)]
+pub struct Target {
+    pub selected: Option<Entity>,
+
 }
 
 #[derive(Component)]
@@ -25,6 +31,7 @@ pub struct CharacterBundle {
     position: Position,
     speed: Speed,
     moving: IsMoving,
+    target: Target,
 
 }
 
@@ -37,6 +44,7 @@ impl CharacterBundle {
             position: Position(pos),
             speed: speed,
             moving: IsMoving(moving),
+            target: Target { selected: None }
         }
     }
 }

@@ -1,9 +1,10 @@
 use bevy::prelude::*;
 
-use crate::{characters::setup_char::Health, player::setup_player::{Player, PlayerName}};
+use crate::{characters::setup_char::{Health, Target}, player::setup_player::{Player, PlayerName}};
 
 #[derive(Component)]
 pub struct HealthBarDisplayMarker;
+
 
 const HEALTH_COLOR: Color = Color::linear_rgb(1.0, 0.2, 0.2);
 const MIN_FILL: f32 = 29.75/6.;
@@ -65,13 +66,47 @@ pub fn local_player_name_bar(
     ));
 }
 
-pub fn get_targeted_player(
-    mut commands: Commands,
+pub fn get_targeted_player<E: EntityEvent>(
+    // mut commands: Commands,
+) -> impl Fn(On<E>, Query<Entity, With<Player>>, Query<&mut Target>) {
 
-) {
+    move |event, mut player, mut target | {
+        if let Ok(mut p) = player.get_mut(event.event_target()) {
+            for mut tar in target.iter_mut() {
+                let t = tar.selected.get_or_insert(p);
+                println!("CLICKED ON: {:?}", t);
 
+            }
+        }
+    }
 }
 
+pub fn local_player_target_bar(
+    mut commands: Commands,
+    name_query: Query<&PlayerName, With<Target>>,
+) {
+    let Ok(name) = name_query.single() else {
+        return;
+    };
+
+    commands.spawn((
+        Node {
+            position_type: PositionType::Absolute,
+            width: Val::Percent(10.0),
+            height: Val::Percent(5.0),
+            // justify_content: JustifyContent::Center,
+            align_content: AlignContent::Center,
+            top: Val::Percent(5.0),
+            right: Val::Percent(50.0),
+            left: Val::Percent(50.0),
+
+            ..default()
+        },
+        Text::new(name.0.to_string()),
+        TextLayout::new_with_justify(Justify::Center),
+        BackgroundColor(Color::BLACK),
+    ));
+}
 
 pub fn update_health_bar(
     mut bars: Query<(&mut Text, &mut Node, &HealthBarDisplayMarker)>,

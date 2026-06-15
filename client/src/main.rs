@@ -19,12 +19,13 @@ fn main() {
             PhysicsPlugins::default(),
             ThirdPersonCameraPlugin,
             GameStatePlugin,
-            // AssetLoadingPlugin,
             SetupPlugin,
             TerrainPlugin,
             CharacterPlugin,
             PlayerPlugin,
             MeshPickingPlugin,
+            PhysicsPickingPlugin,
+            PhysicsDebugPlugin::default(),
         ))
         .run();
 }
