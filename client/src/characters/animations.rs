@@ -1,6 +1,6 @@
-use bevy::{platform::collections::HashMap, prelude::*};
+use bevy::{platform::collections::HashMap, prelude::*, scene::SceneInstanceReady};
 
-use crate::{asset_loader::DkGameAssets, characters::setup_char::{Animated, IsMoving}, gamestate::GameState};
+use crate::{characters::setup_char::{Animated, IsMoving}, gamestate::GameState};
 
 // For animations there are a few things that are needed in order to get and use the animations.  First, a struct that holds: a handle to an animation graph
 // and a HashMap with the Name of the animation, and the index(AnimatnionNodeIndex) to store the index information.  This struct will also need to be added to the
@@ -23,8 +23,8 @@ pub struct AnimationList {
     pub index_map: HashMap<AnimationName, AnimationNodeIndex>
 }
 
-#[derive(Component)]
-pub struct AnimationEntityLink(pub Entity);
+// #[derive(Component)]
+// pub struct AnimationEntityLink(pub Entity);
 
 
 // In this function we're grabbing the target entity, which is an entity that has the Animated tag, i.e., all characters
@@ -33,8 +33,7 @@ pub struct AnimationEntityLink(pub Entity);
 pub fn get_animations(
     mut commands: Commands,
     target_query: Query<Entity, With<Animated>>,
-    game_assets: Res<DkGameAssets>,
-    gltf_handle: Res<Assets<Gltf>>,
+    asset_server: Res<AssetServer>,
     mut graphs: ResMut<Assets<AnimationGraph>>,
     mut next_state: ResMut<NextState<GameState>>,
 
@@ -42,13 +41,15 @@ pub fn get_animations(
     let Ok(target_entity) = target_query.single() else {
         return;
     };
-    let Some(skeleton) = gltf_handle.get(&game_assets.skeleton) else {
-        return;
-    };
+
+
+    let idle_handle: Handle<AnimationClip> = asset_server.load(GltfAssetLabel::Animation(0).from_asset("source.glb"));
+    let run_handle: Handle<AnimationClip> = asset_server.load(GltfAssetLabel::Animation(2).from_asset("source.glb"));
+    // let (graphy, indexy) = AnimationGraph::from_clip(idle_handle.clone());
 
     let mut graph = AnimationGraph::new();
-    let idle_index = graph.add_clip(skeleton.named_animations["Idle"].clone(), 1.0, graph.root);
-    let run_index = graph.add_clip(skeleton.named_animations["Run_Standard"].clone(), 1.0, graph.root);
+    let idle_index = graph.add_clip(idle_handle, 1.0, graph.root);
+    let run_index = graph.add_clip(run_handle, 1.0, graph.root);
     let graph_handle = graphs.add(graph);
 
     let mut index_map: HashMap<AnimationName, AnimationNodeIndex> = HashMap::new();
@@ -59,63 +60,93 @@ pub fn get_animations(
         graph_handle,
         index_map
     };
-    commands.entity(target_entity).insert(animations);
+    commands.entity(target_entity).insert(animations).observe(play_animations);
     next_state.set(GameState::DoneLoading);
 }
 
 // this function iterates through all of the bones on the parent entity, finds the child entity that has an animation player
 // then inserts an animation graph on the child, and links the child to the parent entity.  Without this, the animation would not
 // be able to run on the separate .glb mesh.  This functionality is very useful for a modular design.
-pub fn link_animations(
+// pub fn link_animations(
+//     mut commands: Commands,
+//     children: Query<&Children>,
+//     parent_entity_query: Query<(Entity, &AnimationList), (With<Animated>, Without<AnimationEntityLink>)>,
+//     anim_player: Query<&mut AnimationPlayer>,
+// ) {
+//     // Grab the entities and their ID that contain an animation list.  Must be tagged with animated, but cannot be linked yet
+//     for (parent, animation_list) in parent_entity_query.iter() {
+//         // iterate through the parent's children entities
+//         for child in children.iter_descendants(parent) {
+//             // and if we find a child that contains an animation player
+//             if anim_player.contains(child) {
+//                 // attach an animation graph handle with the animation list's graph handle
+//                 commands.entity(child).insert(AnimationGraphHandle(animation_list.graph_handle.clone()));
+//                 // and link the child to the parent
+//                 commands.entity(parent).insert(AnimationEntityLink(child));
+//             }
+//         }
+//     }
+// }
+
+
+// currently the animation plays once the observer is called.  After working with is_moving, I've determined that maybe the play_animations function doesn't
+// see the updates to the IsMoving component because it only plays once the observer is called.  I'm wondering if there is a way to inject the current playing
+// animation utilizing a different function that changes the value on the AnimationList.  Basically, I'll have another function that observes the state of the player.
+// if the player IS moving then I want the observer to update the current animation.  If the player is not moving then we want to go back to
+
+pub fn play_animations(
+    animations_ready: On<SceneInstanceReady>,
     mut commands: Commands,
     children: Query<&Children>,
-    parent_entity_query: Query<(Entity, &AnimationList), (With<Animated>, Without<AnimationEntityLink>)>,
-    anim_player: Query<&mut AnimationPlayer>,
+    animation_list: Query<&AnimationList>,
+    mut animation_player: Query<&mut AnimationPlayer>,
 ) {
-    // Grab the entities and their ID that contain an animation list.  Must be tagged with animated, but cannot be linked yet
-    for (parent, animation_list) in parent_entity_query.iter() {
-        // iterate through the parent's children entities
-        for child in children.iter_descendants(parent) {
-            // and if we find a child that contains an animation player
-            if anim_player.contains(child) {
-                // attach an animation graph handle with the animation list's graph handle
-                commands.entity(child).insert(AnimationGraphHandle(animation_list.graph_handle.clone()));
-                // and link the child to the parent
-                commands.entity(parent).insert(AnimationEntityLink(child));
+
+    if let Ok(anim_list) = animation_list.get(animations_ready.entity) {
+        for child in children.iter_descendants(animations_ready.entity) {
+
+            let Some(idle) = anim_list.index_map.get(&AnimationName::Idle) else {
+                return;
+            };
+            if let Ok(mut player) = animation_player.get_mut(child) {
+                if !player.is_playing_animation(*idle) {
+                    player.play(*idle);
+                }
+                commands.entity(child).insert(AnimationGraphHandle(anim_list.graph_handle.clone()));
             }
         }
     }
 }
 
-// just play the animations to ensure we're working.  Will change the animation playing in another iteration.
-pub fn play_animations(
-    entity_link: Query<(&AnimationEntityLink, &AnimationList, &IsMoving)>,
-    mut animation_player: Query<&mut AnimationPlayer>,
+pub fn update_animations(
+    mut query: Query<(Entity, &AnimationList, &IsMoving), Changed<IsMoving>>,
+    children: Query<&Children>,
+    mut player_query: Query<&mut AnimationPlayer>,
 ) {
-    for (link, anim, moving) in entity_link.iter() {
-        let Some(idle) = anim.index_map.get(&AnimationName::Idle) else {
-            continue;
-        };
-        let Some(run) = anim.index_map.get(&AnimationName::Run) else {
-            continue;
-        };
-        if let Ok(mut player) = animation_player.get_mut(link.0) {
-            if !moving.0 {
+    for (entity, anim, is_moving) in query.iter_mut() {
+        for child in children.iter_descendants(entity) {
 
-                if !player.is_playing_animation(*idle) {
-                    player.stop(*run);
-                    player.play(*idle).repeat();
-                }
+            if let Ok(mut player) = player_query.get_mut(child) {
+                let Some(run) = anim.index_map.get(&AnimationName::Run) else {
+                    return;
+                };
+                let Some(idle) = anim.index_map.get(&AnimationName::Idle) else {
+                    return;
+                };
 
-            } else if moving.0 {
+                if is_moving.0 {
+                    if !player.is_playing_animation(*run) {
+                        player.stop(*idle);
+                        player.play(*run).repeat();
+                    }
 
-                if !player.is_playing_animation(*run) {
-                    player.stop(*idle);
-                    player.play(*run).repeat();
-                    player.adjust_speeds(1.0);
+                } else {
+                    if !player.is_playing_animation(*idle) {
+                        player.stop(*run);
+                        player.play(*idle).repeat();
+                    }
                 }
             }
-
         }
     }
 }

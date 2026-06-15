@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{asset_loader::DkGameAssets, gamestate::GameState};
+use crate::{gamestate::GameState};
 
 pub struct TerrainPlugin;
 impl Plugin for TerrainPlugin {
@@ -12,15 +12,20 @@ impl Plugin for TerrainPlugin {
 
 pub fn setup_terrain(
     mut commands: Commands,
-    game_assets: Res<DkGameAssets>,
-    gltf_handle: Res<Assets<Gltf>>,
+    // game_assets: Res<DkGameAssets>,
+    asset_server: Res<AssetServer>,
+    // gltf_handle: Res<Assets<Gltf>>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
-    if let Some(terrain) = gltf_handle.get(&game_assets.terrain) {
-        commands.spawn((
-            SceneRoot(terrain.named_scenes["Scene"].clone()),
-        ));
-    }
+    let terrain_scene = GltfAssetLabel::Scene(0).from_asset("terrain/earth_floor.glb");
+    commands.spawn(SceneRoot(asset_server.load(terrain_scene)));
+    // let terrain_handle = asset_server.load(terrain_scene);
+
+    // if let Some(terrain) = gltf_handle.get(&game_assets.terrain) {
+    //     commands.spawn((
+    //         SceneRoot(terrain.named_scenes["Scene"].clone()),
+    //     ));
+    // }
 
     next_state.set(GameState::LoadingCharacterMesh);
 }
