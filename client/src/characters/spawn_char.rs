@@ -31,8 +31,7 @@ pub fn spawn_player_character(
             // RigidBody::Kinematic,
             // ColliderConstructor::Capsule { radius: 0.12/2.0, height: 0.6 }
             Pickable::default(),
-            DebugRender::default().with_collider_color(Color::Srgba(Srgba::RED)),
-
+            DebugRender::default().with_collider_color(Color::Srgba(Srgba::RED))
 
 
             // THE IDEA HERE IS TO ADD AN OBSERVER THAT WILL CYCLE THROUGH ALL OF THE CHILDREN OF THE ENTITY AND PICK OUT
@@ -48,5 +47,5 @@ pub fn spawn_player_character(
             ));
         }).observe(get_targeted_player::<Pointer<Click>>());
 
-        next_state.set(GameState::LoadingCharacterAnimations);
+    next_state.set(GameState::LoadingCharacterAnimations);
 }
