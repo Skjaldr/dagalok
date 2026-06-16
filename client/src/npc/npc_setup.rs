@@ -10,6 +10,9 @@ pub struct Health {
 }
 
 #[derive(Component)]
+pub struct NonPlayerCharacter;
+
+#[derive(Component)]
 pub struct Targettable;
 
 #[derive(Component, Debug)]
@@ -25,17 +28,18 @@ pub struct IsMoving(pub bool);
 pub struct Speed(pub f32);
 
 #[derive(Bundle)]
-pub struct CharacterBundle {
+pub struct NonPlayerCharacterBundle {
     animated: Animated,
     health: Health,
     position: Position,
     speed: Speed,
     moving: IsMoving,
-    target: Target,
+    npc: NonPlayerCharacter,
+
 }
 
 // All magic numbers are for testing only.  Will eventually move to controlled variables.
-impl CharacterBundle {
+impl NonPlayerCharacterBundle {
     pub fn new(pos: Vec3, health: Health, speed: Speed, moving: bool) -> Self {
         Self {
             animated: Animated,
@@ -43,7 +47,7 @@ impl CharacterBundle {
             position: Position(pos),
             speed: speed,
             moving: IsMoving(moving),
-            target: Target(None), //instantiate to none
+            npc: NonPlayerCharacter,
         }
     }
 }

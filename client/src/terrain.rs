@@ -1,7 +1,7 @@
-use avian3d::{collision::collider::Collider, dynamics::rigid_body::RigidBody};
+use avian3d::{collision::collider::Collider, debug_render::DebugRender, dynamics::rigid_body::RigidBody};
 use bevy::prelude::*;
 
-use crate::{gamestate::GameState, ui::systems::get_targeted_player};
+use crate::{characters::setup_char::{Target, Targettable}, gamestate::GameState, ui::systems::get_target};
 
 pub struct TerrainPlugin;
 impl Plugin for TerrainPlugin {
@@ -21,15 +21,16 @@ pub fn setup_terrain(
     let terrain_scene = GltfAssetLabel::Scene(0).from_asset("terrain/earth_floor.glb");
     commands.spawn((
         SceneRoot(asset_server.load(terrain_scene)),
+        Pickable::default(),
+        Targettable,
 
     )).with_children(|parent| {
         parent.spawn((
-            RigidBody::Static,
             Collider::cuboid(81.0, 0.0, 81.0),
-            Pickable::default(),
+            Transform::from_xyz(0.0, 0.0, 0.0),
+            DebugRender::default().with_collider_color(Color::Srgba(Srgba::RED)),
         ));
-    })
-    .observe(get_targeted_player::<Pointer<Click>>());
+    }).observe(get_target::<Pointer<Click>>());
 
 
     next_state.set(GameState::LoadingCharacterMesh);

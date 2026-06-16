@@ -1,9 +1,12 @@
 use bevy::prelude::*;
 
-use crate::{characters::setup_char::{Health, Target}, player::setup_player::{Player, PlayerName}};
+use crate::{characters::setup_char::{Health, Target, Targettable}, player::setup_player::{Player, PlayerName}};
 
 #[derive(Component)]
 pub struct HealthBarDisplayMarker;
+
+#[derive(Component)]
+pub struct TargetDisplayMarker;
 
 
 const HEALTH_COLOR: Color = Color::linear_rgb(1.0, 0.2, 0.2);
@@ -70,33 +73,60 @@ pub fn local_player_target_bar(
     mut commands: Commands,
     name_query: Query<Entity, With<Target>>,
 ) {
-    let Ok(name) = name_query.single() else {
-        return;
-    };
+    for name in name_query.iter() {
+        commands.spawn((
+            Node {
+                position_type: PositionType::Absolute,
+                width: Val::Percent(15.0),
+                height: Val::Percent(6.0),
+                // align_content: AlignContent::Center,
+                justify_self: JustifySelf::Center,
+                border_radius: BorderRadius::all(Val::VMax(5.0)),
+                ..default()
+            },
+        ))
+        .with_child((
+            Node {
+                position_type: PositionType::Absolute,
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                align_content: AlignContent::Center,
+                justify_self: JustifySelf::Center,
+                border_radius: BorderRadius::all(Val::VMax(5.0)),
+                ..default()
+            },
+            Text::new(format!("Target: {:?}", name.to_string()).to_string()),
+            TextLayout::new_with_justify(Justify::Center),
+            BackgroundColor(Color::BLACK),
+            TargetDisplayMarker,
+        ));
+    }
+}
 
-    commands.spawn((
-        Node {
-            position_type: PositionType::Absolute,
-            width: Val::Percent(15.0),
-            height: Val::Percent(6.0),
-            // justify_content: JustifyContent::Center,
-            align_content: AlignContent::Center,
-            justify_self: JustifySelf::Center,
-            // top: Val::Percent(5.0),
-            // right: Val::Percent(50.0),
-            // left: Val::Percent(50.0),
-            border_radius: BorderRadius::all(Val::VMax(5.0)),
+pub fn update_target_bar(
+    mut bars: Query<(&mut Text, &mut Node, &TargetDisplayMarker)>,
+    targettable: Query<&Targettable>,
+    tar: Query<&Target>,
+    // mut commands: Commands,
+) {
+
+    // let Ok(target) = tar.single() else {
+    //     return;
+    // };
+
+    for (mut text, mut bar, _config) in &mut bars {
+
+        for targ in tar.iter() {
+
+            text.0 = format!("Target is: {:?}", targ.0).to_string();
+        }
+
+            // println!("target is: {:?}", targ.0);
 
 
-            ..default()
-        },
-        Text::new(format!("Target: {:?}", name.to_string()).to_string()),
-        // TextLayout::new_with_justify(Justify::Center),
+    }
 
-        // Text::new(name.to_string()),
-        TextLayout::new_with_justify(Justify::Center),
-        BackgroundColor(Color::BLACK),
-    ));
+
 }
 
 pub fn update_health_bar(
@@ -107,8 +137,6 @@ pub fn update_health_bar(
     let Ok(hp) = health.single() else {
         return;
     };
-    // println!("Max Health is: {:?}", hp.max);
-    // println!("Current health is: {:?}", hp.current);
 
     for (mut text, mut bar, _config) in &mut bars {
         let hp_percent = hp.current/hp.max;
@@ -128,21 +156,23 @@ pub fn update_health_bar(
 // When a player clicks a selectable object (enemy, friendly, npc, other player), we trigger an event saying "Hey, this guy clicked this thing. Store this thing
 // for immediate or later use".  So the first thing that needs to happen is registering the click.  Right now colliders are the only real option to use for picking.
 // What I need to understand and internalize is how exactly to click different entities.
-pub fn get_target(
 
-) {
-
-}
-
-pub fn get_targeted_player<E: EntityEvent>(
+pub fn get_target<E: EntityEvent>(
     // mut commands: Commands,
-) -> impl Fn(On<E>, Query<Entity, With<Target>>) {
+) -> impl Fn(On<E>, Query<Entity, With<Targettable>>, Query<&mut Target>, Commands) {
 
-    move |event, mut target| {
-        if let Ok(mut p) = target.get_mut(event.event_target()) {
-                // let t = tar.selected.get_or_insert(p);
-                println!("CLICKED ON: {:?}", p);
+    move |event, targettable, mut target, mut commands| {
+        // get the entity that was clicked
+        let Ok(mut tar) = target.single_mut() else {
+            return;
+        };
+
+        if let Ok(entity) = targettable.get(event.event_target()) {
+            tar.0 = Some(entity);
+            println!("Target is: {:?}", tar.0);
 
         }
+
+
     }
 }
