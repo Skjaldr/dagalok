@@ -6,7 +6,6 @@ use crate::{characters::CharacterPlugin, gamestate::GameStatePlugin, npc::NonPla
 
 mod setup;
 mod gamestate;
-mod asset_loader;
 mod characters;
 mod terrain;
 mod player;
