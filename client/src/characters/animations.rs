@@ -64,31 +64,6 @@ pub fn get_animations(
     next_state.set(GameState::DoneLoading);
 }
 
-// this function iterates through all of the bones on the parent entity, finds the child entity that has an animation player
-// then inserts an animation graph on the child, and links the child to the parent entity.  Without this, the animation would not
-// be able to run on the separate .glb mesh.  This functionality is very useful for a modular design.
-// pub fn link_animations(
-//     mut commands: Commands,
-//     children: Query<&Children>,
-//     parent_entity_query: Query<(Entity, &AnimationList), (With<Animated>, Without<AnimationEntityLink>)>,
-//     anim_player: Query<&mut AnimationPlayer>,
-// ) {
-//     // Grab the entities and their ID that contain an animation list.  Must be tagged with animated, but cannot be linked yet
-//     for (parent, animation_list) in parent_entity_query.iter() {
-//         // iterate through the parent's children entities
-//         for child in children.iter_descendants(parent) {
-//             // and if we find a child that contains an animation player
-//             if anim_player.contains(child) {
-//                 // attach an animation graph handle with the animation list's graph handle
-//                 commands.entity(child).insert(AnimationGraphHandle(animation_list.graph_handle.clone()));
-//                 // and link the child to the parent
-//                 commands.entity(parent).insert(AnimationEntityLink(child));
-//             }
-//         }
-//     }
-// }
-
-
 // currently the animation plays once the observer is called.  After working with is_moving, I've determined that maybe the play_animations function doesn't
 // see the updates to the IsMoving component because it only plays once the observer is called.  I'm wondering if there is a way to inject the current playing
 // animation utilizing a different function that changes the value on the AnimationList.  Basically, I'll have another function that observes the state of the player.
@@ -150,3 +125,28 @@ pub fn update_animations(
         }
     }
 }
+
+
+// this function iterates through all of the bones on the parent entity, finds the child entity that has an animation player
+// then inserts an animation graph on the child, and links the child to the parent entity.  Without this, the animation would not
+// be able to run on the separate .glb mesh.  This functionality is very useful for a modular design.
+// pub fn link_animations(
+//     mut commands: Commands,
+//     children: Query<&Children>,
+//     parent_entity_query: Query<(Entity, &AnimationList), (With<Animated>, Without<AnimationEntityLink>)>,
+//     anim_player: Query<&mut AnimationPlayer>,
+// ) {
+//     // Grab the entities and their ID that contain an animation list.  Must be tagged with animated, but cannot be linked yet
+//     for (parent, animation_list) in parent_entity_query.iter() {
+//         // iterate through the parent's children entities
+//         for child in children.iter_descendants(parent) {
+//             // and if we find a child that contains an animation player
+//             if anim_player.contains(child) {
+//                 // attach an animation graph handle with the animation list's graph handle
+//                 commands.entity(child).insert(AnimationGraphHandle(animation_list.graph_handle.clone()));
+//                 // and link the child to the parent
+//                 commands.entity(parent).insert(AnimationEntityLink(child));
+//             }
+//         }
+//     }
+// }

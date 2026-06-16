@@ -10,10 +10,7 @@ pub struct Health {
 }
 
 #[derive(Component, Debug)]
-pub struct Target {
-    pub selected: Option<Entity>,
-
-}
+pub struct Target(pub Option<Entity>);
 
 #[derive(Component)]
 pub struct Position(pub Vec3);
@@ -44,7 +41,7 @@ impl CharacterBundle {
             position: Position(pos),
             speed: speed,
             moving: IsMoving(moving),
-            target: Target { selected: None }
+            target: Target(None), //instantiate to none
         }
     }
 }

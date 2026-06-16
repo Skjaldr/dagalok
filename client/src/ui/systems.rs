@@ -23,7 +23,6 @@ pub fn spawn_health_bar(
             // border_radius: BorderRadius::all(Val::VMax(5.0)),
             ..default()
         },
-        // HealthBarDisplayMarker,
         BackgroundColor(Color::linear_rgb(0.5, 0.5, 0.5)),
     ))
      .with_child((
@@ -51,13 +50,14 @@ pub fn local_player_name_bar(
     let Ok(name) = name_query.single() else {
         return;
     };
-
     commands.spawn((
         Node {
             position_type: PositionType::Absolute,
             width: Val::Percent(5.0),
             height: Val::Percent(5.0),
             justify_content: JustifyContent::Center,
+            border_radius: BorderRadius::all(Val::VMax(5.0)),
+
             ..default()
         },
         Text::new(name.0.to_string()),
@@ -66,24 +66,9 @@ pub fn local_player_name_bar(
     ));
 }
 
-pub fn get_targeted_player<E: EntityEvent>(
-    // mut commands: Commands,
-) -> impl Fn(On<E>, Query<Entity, With<Player>>, Query<&mut Target>) {
-
-    move |event, mut player, mut target | {
-        if let Ok(mut p) = player.get_mut(event.event_target()) {
-            for mut tar in target.iter_mut() {
-                let t = tar.selected.get_or_insert(p);
-                println!("CLICKED ON: {:?}", t);
-
-            }
-        }
-    }
-}
-
 pub fn local_player_target_bar(
     mut commands: Commands,
-    name_query: Query<&PlayerName, With<Target>>,
+    name_query: Query<Entity, With<Target>>,
 ) {
     let Ok(name) = name_query.single() else {
         return;
@@ -92,17 +77,23 @@ pub fn local_player_target_bar(
     commands.spawn((
         Node {
             position_type: PositionType::Absolute,
-            width: Val::Percent(10.0),
-            height: Val::Percent(5.0),
+            width: Val::Percent(15.0),
+            height: Val::Percent(6.0),
             // justify_content: JustifyContent::Center,
             align_content: AlignContent::Center,
-            top: Val::Percent(5.0),
-            right: Val::Percent(50.0),
-            left: Val::Percent(50.0),
+            justify_self: JustifySelf::Center,
+            // top: Val::Percent(5.0),
+            // right: Val::Percent(50.0),
+            // left: Val::Percent(50.0),
+            border_radius: BorderRadius::all(Val::VMax(5.0)),
+
 
             ..default()
         },
-        Text::new(name.0.to_string()),
+        Text::new(format!("Target: {:?}", name.to_string()).to_string()),
+        // TextLayout::new_with_justify(Justify::Center),
+
+        // Text::new(name.to_string()),
         TextLayout::new_with_justify(Justify::Center),
         BackgroundColor(Color::BLACK),
     ));
@@ -125,6 +116,32 @@ pub fn update_health_bar(
         if hp.current < hp.max {
             text.0 = (&hp_percent * 100.0).trunc().to_string() + "%";
             bar.width = Val::VMax(MAX_FILL * hp_percent);
+
+        }
+    }
+}
+
+
+// When a player clicks another character on screen, NPC or player, the current selected target should be stored in some variable
+// this way if the player decides to heal or damage the target, we can determine which target will receive the heals or damage
+//
+// When a player clicks a selectable object (enemy, friendly, npc, other player), we trigger an event saying "Hey, this guy clicked this thing. Store this thing
+// for immediate or later use".  So the first thing that needs to happen is registering the click.  Right now colliders are the only real option to use for picking.
+// What I need to understand and internalize is how exactly to click different entities.
+pub fn get_target(
+
+) {
+
+}
+
+pub fn get_targeted_player<E: EntityEvent>(
+    // mut commands: Commands,
+) -> impl Fn(On<E>, Query<Entity, With<Target>>) {
+
+    move |event, mut target| {
+        if let Ok(mut p) = target.get_mut(event.event_target()) {
+                // let t = tar.selected.get_or_insert(p);
+                println!("CLICKED ON: {:?}", p);
 
         }
     }

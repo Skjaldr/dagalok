@@ -2,21 +2,17 @@ use avian3d::{collision::collider::{Collider, ColliderConstructor, ColliderConst
 use bevy::{ecs::relationship::Relationship, prelude::*};
 use bevy_third_person_camera::ThirdPersonCameraTarget;
 
-use crate::{characters::setup_char::{CharacterBundle, Health, Speed}, gamestate::GameState, player::{setup_player::PlayerName, ui_hud::{get_targeted_player}}};
+
+use crate::{characters::setup_char::{CharacterBundle, Health, Speed}, gamestate::GameState, player::setup_player::PlayerName, ui::{self, systems::get_targeted_player}};
 use crate::player::setup_player::Player;
 
 
 pub fn spawn_player_character(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    // game_assets: Res<DkGameAssets>,
-    mut meshes: ResMut<Assets<Mesh>>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
-    // if let Some(character_mesh) = gltf_handle.get(&game_assets.character_mesh) {
     let character = GltfAssetLabel::Scene(0).from_asset("models/target.glb");
-    let mesh: Handle<Mesh> = asset_server.load(GltfAssetLabel::Mesh(0).from_asset("models/target.glb"));
-    let materials: Handle<StandardMaterial> = asset_server.load(GltfAssetLabel::Material { index: 0, is_scale_inverted: false }.from_asset("models/target.glb"));
 
     let scene_handle = asset_server.load(character);
         commands.spawn((
@@ -28,8 +24,6 @@ pub fn spawn_player_character(
             // Adding a Player Component marker until defining difference between NPCs and player Characaters
             Player,
             PlayerName("Joe".to_string()),
-            // RigidBody::Kinematic,
-            // ColliderConstructor::Capsule { radius: 0.12/2.0, height: 0.6 }
             Pickable::default(),
             DebugRender::default().with_collider_color(Color::Srgba(Srgba::RED)),
 
@@ -46,7 +40,8 @@ pub fn spawn_player_character(
                 Transform::from_xyz(0.0, 0.235, 0.0),
                 Pickable::default(),
             ));
-        }).observe(get_targeted_player::<Pointer<Click>>());
+        })
+        .observe(get_targeted_player::<Pointer<Click>>());
 
         next_state.set(GameState::LoadingCharacterAnimations);
 }
