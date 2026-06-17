@@ -1,13 +1,9 @@
 use bevy::prelude::*;
 
-#[derive(Component)]
-pub struct Animated;
+use crate::characters::setup_char::Health;
 
 #[derive(Component)]
-pub struct Health {
-    pub current: f32,
-    pub max: f32
-}
+pub struct Animated;
 
 #[derive(Component)]
 pub struct NonPlayerCharacter;

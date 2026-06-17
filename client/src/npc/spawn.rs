@@ -1,7 +1,7 @@
 use avian3d::{collision::collider::Collider, debug_render::DebugRender, dynamics::rigid_body::RigidBody};
 use bevy::prelude::*;
 
-use crate::{characters::setup_char::Targettable, gamestate::GameState, npc::npc_setup::{Health, NonPlayerCharacterBundle, Speed}, ui::systems::get_target};
+use crate::{characters::setup_char::{Health, Targettable}, gamestate::GameState, npc::npc_setup::{NonPlayerCharacterBundle, Speed}, ui::systems::get_target};
 
 pub fn spawn_npc(
     mut commands: Commands,

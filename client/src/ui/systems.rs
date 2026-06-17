@@ -6,6 +6,9 @@ use crate::{characters::setup_char::{Health, Target, Targettable}, player::setup
 pub struct HealthBarDisplayMarker;
 
 #[derive(Component)]
+pub struct TargetHealthBarDisplayMarker;
+
+#[derive(Component)]
 pub struct TargetDisplayMarker;
 
 
@@ -85,45 +88,70 @@ pub fn local_player_target_bar(
                 ..default()
             },
         ))
-        .with_child((
-            Node {
-                position_type: PositionType::Absolute,
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                align_content: AlignContent::Center,
-                justify_self: JustifySelf::Center,
-                border_radius: BorderRadius::all(Val::VMax(5.0)),
-                ..default()
-            },
-            Text::new(format!("Target: {:?}", name.to_string()).to_string()),
-            TextLayout::new_with_justify(Justify::Center),
-            BackgroundColor(Color::BLACK),
-            TargetDisplayMarker,
-        ));
+        .with_children((|parent| {
+            parent.spawn((
+                Node {
+                    position_type: PositionType::Absolute,
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
+                    align_content: AlignContent::Center,
+                    justify_self: JustifySelf::Center,
+                    border_radius: BorderRadius::all(Val::VMax(5.0)),
+                    ..default()
+                },
+                Text::new(format!("Target: {:?}", name.to_string()).to_string()),
+                TextLayout::new_with_justify(Justify::Center),
+                BackgroundColor(Color::BLACK),
+                TargetDisplayMarker,
+            ));
+
+            parent.spawn((
+                Node {
+                    position_type: PositionType::Absolute,
+                    width: Val::Percent(50.0),
+                    height: Val::Percent(50.0),
+                    bottom: Val::Percent(10.0),
+                    // align_content: AlignContent::End,
+                    // justify_self: JustifySelf::End,
+                    ..default()
+                },
+                Text::new("100%"),
+                BackgroundColor(HEALTH_COLOR),
+                TargetHealthBarDisplayMarker,
+            ));
+        }));
     }
 }
 
 pub fn update_target_bar(
-    mut bars: Query<(&mut Text, &mut Node, &TargetDisplayMarker)>,
-    targettable: Query<&Targettable>,
+    mut bars: Query<(&mut Text, &mut Node), Or<(With<TargetDisplayMarker>, With<TargetHealthBarDisplayMarker>)>>,
+    // targettable: Query<&Targettable>,
+    // mut healthbar: Query<(&mut Text, &mut Node, &TargetHealthBarDisplayMarker)>,
+    mut health: Query<&mut Health>,
     tar: Query<&Target>,
     // mut commands: Commands,
 ) {
 
-    // let Ok(target) = tar.single() else {
-    //     return;
-    // };
 
-    for (mut text, mut bar, _config) in &mut bars {
+    for (mut text, mut bar) in &mut bars {
 
         for targ in tar.iter() {
+            if let Some(target) = targ.0 {
+                text.0 = format!("Target is: {:?}", target).to_string();
 
-            text.0 = format!("Target is: {:?}", targ.0).to_string();
+
+
+                // if let Ok(hp) = health.get(target) {
+                //     let hp_percent = hp.current/hp.max;
+                //     if hp.current < hp.max {
+                //         text.0 = (&hp_percent * 100.0).trunc().to_string() + "%";
+                //         bar.width = Val::VMax(MAX_FILL * hp_percent);
+
+                //     }
+                // }
+
+            }
         }
-
-            // println!("target is: {:?}", targ.0);
-
-
     }
 
 

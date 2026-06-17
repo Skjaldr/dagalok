@@ -1,5 +1,5 @@
-use avian3d::{collision::collider::{Collider, ColliderConstructor, ColliderConstructorHierarchy, collider_hierarchy::RigidBodyColliders, collider_transform::ColliderTransform}, debug_render::DebugRender, dynamics::rigid_body::RigidBody, spatial_query::SpatialQueryFilter};
-use bevy::{ecs::relationship::Relationship, prelude::*};
+use avian3d::{collision::collider::Collider, debug_render::DebugRender, dynamics::rigid_body::RigidBody};
+use bevy::prelude::*;
 use bevy_third_person_camera::ThirdPersonCameraTarget;
 
 
