@@ -1,6 +1,6 @@
 use bevy::{platform::collections::HashMap, prelude::*, scene::SceneInstanceReady};
 
-use crate::{characters::setup_char::{Animated, IsMoving}, gamestate::GameState};
+use crate::{characters::setup_char::{Animated, IsMoving}, gamestate::GameState, player::{self, setup_player::Player}};
 
 // For animations there are a few things that are needed in order to get and use the animations.  First, a struct that holds: a handle to an animation graph
 // and a HashMap with the Name of the animation, and the index(AnimatnionNodeIndex) to store the index information.  This struct will also need to be added to the
@@ -150,3 +150,66 @@ pub fn update_animations(
 //         }
 //     }
 // }
+
+
+// currently the animation plays once the observer is called.  After working with is_moving, I've determined that maybe the play_animations function doesn't
+// see the updates to the IsMoving component because it only plays once the observer is called.  I'm wondering if there is a way to inject the current playing
+// animation utilizing a different function that changes the value on the AnimationList.  Basically, I'll have another function that observes the state of the player.
+// if the player IS moving then I want the observer to update the current animation.  If the player is not moving then we want to go back to
+
+pub fn play_animations(
+    animations_ready: On<SceneInstanceReady>,
+    mut commands: Commands,
+    children: Query<&Children>,
+    animation_list: Query<&AnimationList>,
+    mut animation_player: Query<&mut AnimationPlayer>,
+) {
+
+    if let Ok(anim_list) = animation_list.get(animations_ready.entity) {
+        for child in children.iter_descendants(animations_ready.entity) {
+
+            let Some(idle) = anim_list.index_map.get(&AnimationName::Idle) else {
+                return;
+            };
+            if let Ok(mut player) = animation_player.get_mut(child) {
+                if !player.is_playing_animation(*idle) {
+                    player.play(*idle);
+                }
+                commands.entity(child).insert(AnimationGraphHandle(anim_list.graph_handle.clone()));
+            }
+        }
+    }
+}
+
+pub fn update_animations(
+    mut query: Query<(Entity, &AnimationList, &IsMoving), Changed<IsMoving>>,
+    children: Query<&Children>,
+    mut player_query: Query<&mut AnimationPlayer>,
+) {
+    for (entity, anim, is_moving) in query.iter_mut() {
+        for child in children.iter_descendants(entity) {
+
+            if let Ok(mut player) = player_query.get_mut(child) {
+                let Some(run) = anim.index_map.get(&AnimationName::Run) else {
+                    return;
+                };
+                let Some(idle) = anim.index_map.get(&AnimationName::Idle) else {
+                    return;
+                };
+
+                if is_moving.0 {
+                    if !player.is_playing_animation(*run) {
+                        player.stop(*idle);
+                        player.play(*run).repeat();
+                    }
+
+                } else {
+                    if !player.is_playing_animation(*idle) {
+                        player.stop(*run);
+                        player.play(*idle).repeat();
+                    }
+                }
+            }
+        }
+    }
+}

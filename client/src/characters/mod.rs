@@ -1,5 +1,9 @@
 use bevy::prelude::*;
+<<<<<<< HEAD
 use crate::{characters::{animations::{get_animations, update_animations}, spawn_char::spawn_player_character}, gamestate::GameState};
+=======
+use crate::{characters::{animations::{get_animations, play_animations, update_animations}, spawn_char::spawn_player_character}, gamestate::GameState};
+>>>>>>> 2385666 (changes to animation system)
 // use crate::characters::animations::link_animations;
 
 pub mod setup_char;
