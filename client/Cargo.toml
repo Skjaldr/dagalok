@@ -1,6 +1,6 @@
 [package]
 name = "anim-test"
-version = "0.1.0"
+version = "0.0.2"
 edition = "2024"
 
 [dependencies]
@@ -9,3 +9,4 @@ bevy = { version = "0.18.1", default-features = true }
 bevy_asset_loader = "0.26.0"
 # bevy_mod_picking = "0.20.1"
 bevy_third_person_camera = "0.4.0"
+spacetimedb-sdk = "2.6.0"

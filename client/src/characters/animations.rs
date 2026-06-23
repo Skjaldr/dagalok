@@ -3,7 +3,6 @@ use bevy::{platform::collections::HashMap, prelude::*, scene::SceneInstanceReady
 use crate::{characters::setup_char::{Animated, IsMoving}, gamestate::GameState, player::{self, setup_player::Player}};
 
 // For animations there are a few things that are needed in order to get and use the animations.  First, a struct that holds: a handle to an animation graph
-// and a HashMap with the Name of the animation, and the index(AnimatnionNodeIndex) to store the index information.  This struct will also need to be added to the
 // character entity, so for the get_animations() function we'll need a query to target our entity that contains the character mesh.  An AnimationEntityLink will
 // need to be created so we can link the mesh with the skeleton.  Both the source and character files are .glb, but the source file contains the skeleton
 // with the animation data, and the character mesh contains the skeleton with the mesh.  Both have the exact same bones used to animate the mesh.

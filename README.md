@@ -8,7 +8,9 @@
 
 ~~**3. Movement system - Once terrain, characters, and animations are setup, create a movement system for the player to control the character, incporporating animations for fluidity**~~
 
-**4. Basic UI - Work to create a basic UI that will keep track of player's name, stats, etc**
+~~**4. Basic UI - Work to create a basic UI that will keep track of player's name, stats, etc**~~
+
+**Note for #4. Basic UI has been implemented with the exception of stats, as stats have not been implemented.  As of right now, player name is the entity ID.  We also have a basic targeting system in place.  The targetting UI displays name and HP percentage of the players being targeted and correctly identifies the individual characters**
 
 **5. SpacetimeDB Integration - Setup server and connect client to server.**
 
@@ -24,7 +26,7 @@
 More features will be added as the game continues to take shape and/or as ideas come to fruition.
 
 
-This is a step by step process of what I believe the game should do upon startup.  This is a working and living document to help keep track of everything going on.
+This is a step by step process of what the game should do upon startup.  This is a working and living document.
 
 1. The player double clicks the game icon and is presented with a login screen.
 2. Player provides account information then clicks "log in"
