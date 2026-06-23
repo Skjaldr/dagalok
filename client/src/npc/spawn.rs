@@ -12,7 +12,7 @@ pub fn spawn_npc(
         commands.spawn((
 
             SceneRoot(scene_handle.clone()),
-            Transform::from_xyz(5.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+            Transform::from_xyz(-5.0, 0.0, -5.0).looking_at(Vec3::ZERO, Vec3::Y),
             NonPlayerCharacterBundle::new(Vec3::new(0.0, 0.0, 0.0), Health { max: 100.0, current: 100.0 }, Speed(1.0), false),
             Pickable::default(),
             Targettable,

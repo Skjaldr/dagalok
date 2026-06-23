@@ -46,6 +46,7 @@ pub fn spawn_health_bar(
          // TextLayout::new_with_justify(Justify::Center),
          BackgroundColor(HEALTH_COLOR),
          HealthBarDisplayMarker,
+         // TargetHealthBarDisplayMarker
      ));
 }
 
@@ -74,13 +75,13 @@ pub fn local_player_name_bar(
 
 pub fn local_player_target_bar(
     mut commands: Commands,
-    name_query: Query<Entity, With<Target>>,
+    name_query: Query<Entity, With<Targettable>>,
 ) {
     for name in name_query.iter() {
         commands.spawn((
             Node {
                 position_type: PositionType::Absolute,
-                width: Val::Percent(15.0),
+                width: Val::Percent(MAX_FILL),
                 height: Val::Percent(6.0),
                 // align_content: AlignContent::Center,
                 justify_self: JustifySelf::Center,
@@ -104,11 +105,10 @@ pub fn local_player_target_bar(
                 BackgroundColor(Color::BLACK),
                 TargetDisplayMarker,
             ));
-
             parent.spawn((
                 Node {
                     position_type: PositionType::Absolute,
-                    width: Val::Percent(50.0),
+                    width: Val::Percent(99.0),
                     height: Val::Percent(50.0),
                     bottom: Val::Percent(10.0),
                     // align_content: AlignContent::End,
@@ -123,41 +123,53 @@ pub fn local_player_target_bar(
     }
 }
 
+// This function is for updating the static information displayed on the target.  This will include name, class, and level.
 pub fn update_target_bar(
-    mut bars: Query<(&mut Text, &mut Node), Or<(With<TargetDisplayMarker>, With<TargetHealthBarDisplayMarker>)>>,
-    // targettable: Query<&Targettable>,
-    // mut healthbar: Query<(&mut Text, &mut Node, &TargetHealthBarDisplayMarker)>,
-    mut health: Query<&mut Health>,
+    mut bars: Query<(&mut Text, &mut Node), With<TargetDisplayMarker>>,
     tar: Query<&Target>,
-    // mut commands: Commands,
 ) {
-
 
     for (mut text, mut bar) in &mut bars {
 
         for targ in tar.iter() {
             if let Some(target) = targ.0 {
-                text.0 = format!("Target is: {:?}", target).to_string();
-
-
-
-                // if let Ok(hp) = health.get(target) {
-                //     let hp_percent = hp.current/hp.max;
-                //     if hp.current < hp.max {
-                //         text.0 = (&hp_percent * 100.0).trunc().to_string() + "%";
-                //         bar.width = Val::VMax(MAX_FILL * hp_percent);
-
-                //     }
-                // }
+                text.0 = format!("{:?}", target).to_string();
 
             }
         }
     }
-
-
 }
 
-pub fn update_health_bar(
+// this function is for updating the player stats: Health, Stamina, Mana.  For now we're just focusing on HP.
+pub fn update_target_health_bar(
+    mut bars: Query<(&mut Text, &mut Node, &TargetHealthBarDisplayMarker)>,
+    health: Query<&mut Health>,
+    tar: Query<&Target>,
+) {
+
+    for targ in tar {
+        if let Some(target) = targ.0 {
+            if let Ok(hp) = health.get(target) {
+                for (mut text, mut bar, _marker) in &mut bars {
+                    // need to set the current value
+                    let hp_percent = hp.current/hp.max * 100.0;
+                    text.0 = (hp_percent).to_string() + "%";
+                    bar.width = Val::Percent(hp_percent);
+
+
+                    if hp.current < hp.max {
+                        text.0 = (&hp_percent).trunc().to_string() + "%";
+                        bar.width = Val::Percent(hp_percent);
+
+                    }
+                }
+            }
+        }
+    }
+}
+
+// this function updates the local player's health, i.e., the player controlling this particular client.
+pub fn update_local_player_health_bar(
     mut bars: Query<(&mut Text, &mut Node, &HealthBarDisplayMarker)>,
     health: Query<&mut Health, With<Player>>,
 ) {
