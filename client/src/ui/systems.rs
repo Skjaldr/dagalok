@@ -2,19 +2,21 @@ use bevy::prelude::*;
 
 use crate::{characters::setup_char::{Health, Target, Targettable}, player::setup_player::{Player, PlayerName}};
 
+// Marker to help query for health bars on local player
 #[derive(Component)]
 pub struct HealthBarDisplayMarker;
 
+// Marker to help query for health bars on target player
 #[derive(Component)]
 pub struct TargetHealthBarDisplayMarker;
 
+// Marker to help query for target information to update target bar on UI.
 #[derive(Component)]
 pub struct TargetDisplayMarker;
 
 
 const HEALTH_COLOR: Color = Color::linear_rgb(1.0, 0.2, 0.2);
-const MIN_FILL: f32 = 29.75/6.;
-const MAX_FILL: f32 = 29.75 - MIN_FILL;
+const MAX_FILL: f32 = 30.0;
 
 pub fn spawn_health_bar(
     mut commands: Commands,
@@ -26,7 +28,6 @@ pub fn spawn_health_bar(
             height: Val::VMax(5.0),
             left: Val::Percent(10.0),
             bottom: Val::Percent(10.0),
-            // border_radius: BorderRadius::all(Val::VMax(5.0)),
             ..default()
         },
         BackgroundColor(Color::linear_rgb(0.5, 0.5, 0.5)),
@@ -39,14 +40,11 @@ pub fn spawn_health_bar(
              width: Val::Percent(99.0),
              height: Val::Percent(95.),
              margin: UiRect::all(Val::VMax(0.125)),
-             // border_radius: BorderRadius::all(Val::VMax(5.0)),
              ..default()
          },
          Text::new("100%"),
-         // TextLayout::new_with_justify(Justify::Center),
          BackgroundColor(HEALTH_COLOR),
          HealthBarDisplayMarker,
-         // TargetHealthBarDisplayMarker
      ));
 }
 
@@ -111,8 +109,6 @@ pub fn local_player_target_bar(
                     width: Val::Percent(99.0),
                     height: Val::Percent(50.0),
                     bottom: Val::Percent(10.0),
-                    // align_content: AlignContent::End,
-                    // justify_self: JustifySelf::End,
                     ..default()
                 },
                 Text::new("100%"),
