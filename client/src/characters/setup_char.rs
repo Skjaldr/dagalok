@@ -10,6 +10,9 @@ pub struct Health {
 }
 
 #[derive(Component)]
+pub struct NetworkEntityId(pub u64);
+
+#[derive(Component)]
 pub struct Targettable;
 
 #[derive(Component, Debug)]

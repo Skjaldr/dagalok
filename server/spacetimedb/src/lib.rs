@@ -1,5 +1,5 @@
 use petname::Generator;
-use spacetimedb::{Identity, ReducerContext, Table};
+use spacetimedb::{Identity, ReducerContext, SpacetimeType, Table};
 
 const SPAWN_X: f32 = -5.0;
 const SPAWN_Y: f32 = 0.0;
@@ -15,6 +15,37 @@ pub struct Player {
     position_y: f32,
     position_z: f32,
     is_online: bool,
+}
+
+#[derive(SpacetimeType, Clone, Copy, Debug, PartialEq)]
+pub enum CharacterType {
+    Player,
+    Npc,
+}
+
+#[derive(SpacetimeType, Clone, Copy, Debug)]
+pub struct CharacterPosition {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+}
+
+#[derive(SpacetimeType, Clone, Copy, Debug)]
+pub struct CharacterHealth {
+    pub max: f32,
+    pub current: f32,
+}
+
+#[spacetimedb::table( accessor = npc, public)]
+pub struct CharacterTable {
+    #[primary_key]
+    pub npc_id: u64,
+    pub position: CharacterPosition,
+    pub health: CharacterHealth,
+    pub speed: f32,
+    pub is_moving: f32,
+    pub is_targettable: bool,
+    pub character_type: CharacterType,
 }
 
 fn generate_username(ctx: &ReducerContext) -> String {
@@ -93,6 +124,4 @@ pub fn register_player(
     } else {
         Err("Cannot rename: player not found. Connect first".to_string())
     }
-
-
 }
