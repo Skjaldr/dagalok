@@ -11,7 +11,7 @@ mod terrain;
 mod player;
 mod ui;
 mod npc;
-mod networking;
+pub mod networking;
 mod module_bindings;
 
 fn main() {

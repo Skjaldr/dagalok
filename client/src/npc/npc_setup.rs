@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::characters::setup_char::Health;
+use crate::{characters::setup_char::Health, module_bindings::DbVec3};
 
 #[derive(Component)]
 pub struct Animated;
@@ -15,7 +15,7 @@ pub struct Targettable;
 pub struct Target(pub Option<Entity>);
 
 #[derive(Component)]
-pub struct Position(pub Vec3);
+pub struct Position(pub DbVec3);
 
 #[derive(Component)]
 pub struct IsMoving(pub bool);
@@ -36,7 +36,7 @@ pub struct NonPlayerCharacterBundle {
 
 // All magic numbers are for testing only.  Will eventually move to controlled variables.
 impl NonPlayerCharacterBundle {
-    pub fn new(pos: Vec3, health: Health, speed: Speed, moving: bool) -> Self {
+    pub fn new(pos: DbVec3, health: Health, speed: Speed, moving: bool) -> Self {
         Self {
             animated: Animated,
             health: health,

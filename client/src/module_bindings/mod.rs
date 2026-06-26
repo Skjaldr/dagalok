@@ -6,13 +6,25 @@
 #![allow(unused, clippy::all)]
 use spacetimedb_sdk::__codegen::{self as __sdk, __lib, __sats, __ws};
 
+pub mod character_health_type;
+pub mod character_table;
+pub mod character_table_type;
+pub mod character_type_type;
+pub mod db_vec_3_type;
 pub mod player_table;
 pub mod player_type;
 pub mod register_player_reducer;
+pub mod spawn_npc_reducer;
 
+pub use character_health_type::CharacterHealth;
+pub use character_table::*;
+pub use character_table_type::CharacterTable;
+pub use character_type_type::CharacterType;
+pub use db_vec_3_type::DbVec3;
 pub use player_table::*;
 pub use player_type::Player;
 pub use register_player_reducer::register_player;
+pub use spawn_npc_reducer::spawn_npc;
 
 #[derive(Clone, PartialEq, Debug)]
 
@@ -23,6 +35,7 @@ pub use register_player_reducer::register_player;
 
 pub enum Reducer {
     RegisterPlayer { username: String },
+    SpawnNpc { pos: DbVec3 },
 }
 
 impl __sdk::InModule for Reducer {
@@ -33,6 +46,7 @@ impl __sdk::Reducer for Reducer {
     fn reducer_name(&self) -> &'static str {
         match self {
             Reducer::RegisterPlayer { .. } => "register_player",
+            Reducer::SpawnNpc { .. } => "spawn_npc",
             _ => unreachable!(),
         }
     }
@@ -44,6 +58,9 @@ impl __sdk::Reducer for Reducer {
                     username: username.clone(),
                 })
             }
+            Reducer::SpawnNpc { pos } => {
+                __sats::bsatn::to_vec(&spawn_npc_reducer::SpawnNpcArgs { pos: pos.clone() })
+            }
             _ => unreachable!(),
         }
     }
@@ -53,6 +70,7 @@ impl __sdk::Reducer for Reducer {
 #[allow(non_snake_case)]
 #[doc(hidden)]
 pub struct DbUpdate {
+    character: __sdk::TableUpdate<CharacterTable>,
     player: __sdk::TableUpdate<Player>,
 }
 
@@ -62,6 +80,9 @@ impl TryFrom<__ws::v2::TransactionUpdate> for DbUpdate {
         let mut db_update = DbUpdate::default();
         for table_update in __sdk::transaction_update_iter_table_updates(raw) {
             match &table_update.table_name[..] {
+                "character" => db_update
+                    .character
+                    .append(character_table::parse_table_update(table_update)?),
                 "player" => db_update
                     .player
                     .append(player_table::parse_table_update(table_update)?),
@@ -91,6 +112,9 @@ impl __sdk::DbUpdate for DbUpdate {
     ) -> AppliedDiff<'_> {
         let mut diff = AppliedDiff::default();
 
+        diff.character = cache
+            .apply_diff_to_table::<CharacterTable>("character", &self.character)
+            .with_updates_by_pk(|row| &row.npc_id);
         diff.player = cache
             .apply_diff_to_table::<Player>("player", &self.player)
             .with_updates_by_pk(|row| &row.identity);
@@ -101,6 +125,9 @@ impl __sdk::DbUpdate for DbUpdate {
         let mut db_update = DbUpdate::default();
         for table_rows in raw.tables {
             match &table_rows.table[..] {
+                "character" => db_update
+                    .character
+                    .append(__sdk::parse_row_list_as_inserts(table_rows.rows)?),
                 "player" => db_update
                     .player
                     .append(__sdk::parse_row_list_as_inserts(table_rows.rows)?),
@@ -117,6 +144,9 @@ impl __sdk::DbUpdate for DbUpdate {
         let mut db_update = DbUpdate::default();
         for table_rows in raw.tables {
             match &table_rows.table[..] {
+                "character" => db_update
+                    .character
+                    .append(__sdk::parse_row_list_as_deletes(table_rows.rows)?),
                 "player" => db_update
                     .player
                     .append(__sdk::parse_row_list_as_deletes(table_rows.rows)?),
@@ -135,6 +165,7 @@ impl __sdk::DbUpdate for DbUpdate {
 #[allow(non_snake_case)]
 #[doc(hidden)]
 pub struct AppliedDiff<'r> {
+    character: __sdk::TableAppliedDiff<'r, CharacterTable>,
     player: __sdk::TableAppliedDiff<'r, Player>,
     __unused: std::marker::PhantomData<&'r ()>,
 }
@@ -149,6 +180,7 @@ impl<'r> __sdk::AppliedDiff<'r> for AppliedDiff<'r> {
         event: &EventContext,
         callbacks: &mut __sdk::DbCallbacks<RemoteModule>,
     ) {
+        callbacks.invoke_table_row_callbacks::<CharacterTable>("character", &self.character, event);
         callbacks.invoke_table_row_callbacks::<Player>("player", &self.player, event);
     }
 }
@@ -810,7 +842,8 @@ impl __sdk::SpacetimeModule for RemoteModule {
     type QueryBuilder = __sdk::QueryBuilder;
 
     fn register_tables(client_cache: &mut __sdk::ClientCache<Self>) {
+        character_table::register_table(client_cache);
         player_table::register_table(client_cache);
     }
-    const ALL_TABLE_NAMES: &'static [&'static str] = &["player"];
+    const ALL_TABLE_NAMES: &'static [&'static str] = &["character", "player"];
 }

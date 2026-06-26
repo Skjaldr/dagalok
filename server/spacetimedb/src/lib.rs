@@ -24,7 +24,7 @@ pub enum CharacterType {
 }
 
 #[derive(SpacetimeType, Clone, Copy, Debug)]
-pub struct CharacterPosition {
+pub struct DbVec3 {
     pub x: f32,
     pub y: f32,
     pub z: f32,
@@ -36,17 +36,38 @@ pub struct CharacterHealth {
     pub current: f32,
 }
 
-#[spacetimedb::table( accessor = npc, public)]
+#[spacetimedb::table( accessor = character, public)]
 pub struct CharacterTable {
     #[primary_key]
-    pub npc_id: u64,
-    pub position: CharacterPosition,
+    pub npc_id: i64,
+    pub name: String,
+    pub position: DbVec3,
     pub health: CharacterHealth,
     pub speed: f32,
-    pub is_moving: f32,
+    pub is_moving: bool,
     pub is_targettable: bool,
     pub character_type: CharacterType,
 }
+
+#[spacetimedb::reducer]
+pub fn spawn_npc(ctx: &ReducerContext, pos: DbVec3) {
+    let unique_id = ctx.timestamp.to_micros_since_unix_epoch();
+
+
+    ctx.db.character().insert(CharacterTable {
+        npc_id: unique_id,
+        name: generate_username(ctx),
+        position: pos,
+        speed: 1.0,
+        is_targettable: true,
+        health: CharacterHealth {
+            current: 100.0,
+            max: 100.0,
+        },
+        is_moving: false,
+        character_type: CharacterType::Npc,
+    });
+ }
 
 fn generate_username(ctx: &ReducerContext) -> String {
     let mut rng = ctx.rng();

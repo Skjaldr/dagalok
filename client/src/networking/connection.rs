@@ -96,3 +96,8 @@ pub fn process_server_messages(
         error!("server frame_tick error: {e}");
     }
 }
+
+#[derive(Resource)]
+pub struct SpacetimeReceiver {
+    pub rx: Receiver<
+}
